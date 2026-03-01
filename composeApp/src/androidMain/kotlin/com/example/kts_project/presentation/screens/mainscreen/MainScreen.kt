@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -54,12 +53,13 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Comment
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,19 +158,56 @@ fun PostCard(
             modifier = Modifier.padding(12.dp)
         ) {
             if (!post.imageUrl.isNullOrBlank()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(post.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Post image",
+                var imageLoadError by remember { mutableStateOf(false) }
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
-                )
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    if (!imageLoadError) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(post.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Post image",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop,
+                            onError = { imageLoadError = true }
+                        )
+                    }
+
+                    if (imageLoadError) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Image,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                )
+                                Text(
+                                    text = "Не удалось загрузить",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -218,6 +255,7 @@ fun PostCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Лайки
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -246,7 +284,7 @@ fun PostCard(
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            text = "${post.comments}",
+                            text = post.comments.toString(),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
@@ -269,6 +307,13 @@ fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+        )
+
         Text(
             text = "Ошибка",
             fontSize = 20.sp,
@@ -314,11 +359,11 @@ fun MainScreenPreview() {
         Post(
             id = index,
             title = "Пример поста ${index + 1}",
-            description = "Это описание примерного поста для превью.",
+            description = "Это описание примерного поста",
             author = "user_$index",
-            likes = 100 + index * 10,
-            comments = 20 + index * 5,
-            imageUrl = if (index % 2 == 0) "https://picsum.photos/200/150?random=$index" else null,
+            likes = index,
+            comments = index,
+            imageUrl = "https://picsum.photos/200/150?random=$index",
             timestamp = System.currentTimeMillis() - (index * 3600000)
         )
     }

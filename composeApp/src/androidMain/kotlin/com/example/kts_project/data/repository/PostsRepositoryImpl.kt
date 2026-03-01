@@ -18,7 +18,7 @@ class PostsRepositoryImpl @Inject constructor(): PostsRepository {
             author = "user_${index % 5}",
             likes = (50 + index * 7) % 1000,
             comments = (10 + index * 3) % 200,
-            imageUrl = if (index % 3 == 0) "https://picsum.photos/200/150?random=$index" else null,
+            imageUrl = "https://picsum.phots/200/150?random=$index",
             timestamp = System.currentTimeMillis() - (index * 3600000)
         )
     }
