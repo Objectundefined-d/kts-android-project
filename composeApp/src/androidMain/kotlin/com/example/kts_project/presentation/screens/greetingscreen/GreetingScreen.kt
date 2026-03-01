@@ -1,4 +1,4 @@
-package com.example.kts_project.screens
+package com.example.kts_project.presentation.screens.greetingscreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
-import kts_project.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -38,11 +37,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.kts_project.utils.ImageUrl
-import kts_project.composeapp.generated.resources.ic_launcher
+import com.example.kts_project.presentation.utils.ImageUrl
+import androidx.compose.ui.res.painterResource
+import com.example.kts_project.R
 
 @Composable
-fun MainScreen(
+fun GreetingScreen(
     receivedData: String = "",
     onNavigateToLogin: () -> Unit
 ) {
@@ -82,7 +82,7 @@ fun MainScreen(
                         .background(Color.LightGray.copy(alpha = 0.3f))
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.ic_launcher),
+                        painter = painterResource(id = R.mipmap.ic_launcher),
                         contentDescription = "App icon",
                         modifier = Modifier.size(120.dp),
                         tint = Color.Unspecified
@@ -188,8 +188,8 @@ fun MainScreen(
     showSystemUi = true
 )
 @Composable
-fun MainScreenPreview() {
-    MainScreen(
+fun GreetingScreenPreview() {
+    GreetingScreen(
         receivedData = "",
         onNavigateToLogin = {}
     )

@@ -1,4 +1,4 @@
-package com.example.kts_project.screens
+package com.example.kts_project.presentation.screens.loginscreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -6,46 +6,83 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TextFieldDefaults
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.kts_project.presentation.viewmodel.loginviewmodel.LoginUiEvent
+import com.example.kts_project.presentation.viewmodel.loginviewmodel.LoginViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
-    var login by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFFF5252)
-    ) {
+fun LoginScreenContent(
+    userName: String,
+    password: String,
+    isLoginButtonActive: Boolean,
+    error: String? = null,
+    onBack: () -> Unit,
+    onUsernameChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onLogin: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Назад",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    navigationIconContentColor = Color.White,
+                    titleContentColor = Color.White
+                )
+            )
+        },
+        containerColor = Color(0xFFFF5252)
+    ) { innerPadding ->
         Column(
-            modifier = (Modifier
+            modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .systemBarsPadding()
-                .verticalScroll(rememberScrollState())),
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -61,8 +98,8 @@ fun LoginScreen() {
             )
 
             TextField(
-                value = login,
-                onValueChange = { login = it },
+                value = userName,
+                onValueChange = onUsernameChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp),
@@ -97,7 +134,7 @@ fun LoginScreen() {
 
             TextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = onPasswordChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp),
@@ -129,7 +166,14 @@ fun LoginScreen() {
                 )
             )
 
-            Spacer(modifier = Modifier.height(72.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+
+            error?.let {
+                Spacer(Modifier.height(10.dp))
+                Text(it, color = MaterialTheme.colorScheme.error)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 modifier = Modifier
@@ -141,8 +185,16 @@ fun LoginScreen() {
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(4.dp),
-                onClick = {}
+                onClick = onLogin,
+                enabled = !isLoginButtonActive
             ) {
+                if (isLoginButtonActive) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(Modifier.width(10.dp))
+                }
                 Text(text = "LOGIN")
             }
 
@@ -170,11 +222,47 @@ fun LoginScreen() {
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Composable
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: LoginViewModel
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginUiEvent.LoginSuccessEvent -> {
+                    onLoginSuccess()
+                }
+            }
+        }
+    }
+
+    LoginScreenContent(
+        userName = state.userName,
+        password = state.password,
+        isLoginButtonActive = state.isLoginButtonActive,
+        error = state.error,
+        onBack = onBack,
+        onUsernameChanged = viewModel::onUsernameChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onLogin = viewModel::onLogin
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreenContent(
+        userName = "test",
+        password = "test",
+        isLoginButtonActive = false,
+        error = "state.error",
+        onBack = { },
+        onUsernameChanged = { },
+        onPasswordChanged = { },
+        onLogin = { }
+    )
 }
