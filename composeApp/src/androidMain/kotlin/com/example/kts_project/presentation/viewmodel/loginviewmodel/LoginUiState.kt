@@ -4,5 +4,11 @@ data class LoginUiState(
     val userName: String = "",
     val password: String = "",
     val isLoginButtonActive: Boolean = false,
-    val error: String? = null
+    val errorType: ErrorType? = null
 )
+
+enum class ErrorType {
+    EMPTY_EMAIL,
+    EMPTY_PASSWORD,
+    UNKNOWN_ERROR
+}

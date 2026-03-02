@@ -37,15 +37,15 @@ class MainViewModel @Inject constructor(
             .onEach { posts ->
                 _state.update {
                     it.copy(
-                        isLoading = true,
+                        isLoading = false,
                         posts = posts,
-                        error = null
+                        errorType = null
                     )
                 }
             }
             .catch { e ->
                 _state.update {
-                    it.copy(isLoading = false, error = e.message ?: "Ошибка при загрузке")
+                    it.copy(isLoading = false, errorType = ErrorType.LOAD_ERROR)
                 }
             }
             .launchIn(viewModelScope)
@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
 
     fun refreshPosts() {
         viewModelScope.launch {
-            _state.update { it.copy(isRefreshing = true, error = null) }
+            _state.update { it.copy(isRefreshing = true, errorType = null) }
 
             val result = postsRepository.refreshPosts()
             result.fold(
@@ -63,7 +63,7 @@ class MainViewModel @Inject constructor(
                     }
                 },
                 onFailure = { e ->
-                    _state.update { it.copy(error = e.message ?: "Ошибка при обновлении") }
+                    _state.update { it.copy(errorType = ErrorType.REFRESH_ERROR) }
                 }
             )
         }

@@ -14,11 +14,11 @@ class PostsRepositoryImpl @Inject constructor(): PostsRepository {
         Post(
             id = index,
             title = "Заголовок поста ${index + 1}",
-            description = "Это подробное описание поста номер ${index + 1}. Здесь может быть интересный контент, который пользователь захочет прочитать. В описании может быть много текста, чтобы проверить отображение многострочного контента.",
+            description = "Это подробное описание поста номер ${index + 1}.",
             author = "user_${index % 5}",
             likes = (50 + index * 7) % 1000,
             comments = (10 + index * 3) % 200,
-            imageUrl = "https://picsum.phots/200/150?random=$index",
+            imageUrl = "https://picsum.photos/200/150?random=$index",
             timestamp = System.currentTimeMillis() - (index * 3600000)
         )
     }

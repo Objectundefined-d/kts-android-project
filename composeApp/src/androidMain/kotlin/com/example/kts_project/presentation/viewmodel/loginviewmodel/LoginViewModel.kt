@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import com.example.kts_project.domain.model.AuthError
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -27,12 +25,12 @@ class LoginViewModel @Inject constructor(
     private val _events = MutableSharedFlow<LoginUiEvent>()
     val events: SharedFlow<LoginUiEvent> = _events.asSharedFlow()
 
-    fun onUsernameChanged(newName: String) = _state.update { it.copy(userName = newName, error = null) }
+    fun onUsernameChanged(newName: String) = _state.update { it.copy(userName = newName, errorType = null) }
 
-    fun onPasswordChanged(newPassword: String) = _state.update { it.copy(password = newPassword, error = null) }
+    fun onPasswordChanged(newPassword: String) = _state.update { it.copy(password = newPassword, errorType = null) }
 
     fun onLogin() = viewModelScope.launch {
-        _state.update { it.copy(isLoginButtonActive = true, error = null) }
+        _state.update { it.copy(isLoginButtonActive = true, errorType = null) }
 
         val result = loginRepository.login(
             userName = _state.value.userName,
@@ -45,11 +43,19 @@ class LoginViewModel @Inject constructor(
                 _state.update { it.copy(isLoginButtonActive = true) }
             },
             onFailure = { exception ->
+
+                val errorType = when (exception) {
+                    is AuthError.EmptyEmail -> ErrorType.EMPTY_EMAIL
+                    is AuthError.EmptyPassword -> ErrorType.EMPTY_PASSWORD
+                    else -> ErrorType.UNKNOWN_ERROR
+                }
+
                 _state.update {
                     it.copy(
                         isLoginButtonActive = false,
-                        error = exception.message ?: "Ошибка входа"
-                    )
+                        errorType = if (errorType == ErrorType.EMPTY_EMAIL ||
+                                errorType == ErrorType.EMPTY_PASSWORD)
+                                                                errorType else null)
                 }
             }
         )

@@ -1,5 +1,6 @@
 package com.example.kts_project.presentation.screens.loginscreen
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,9 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +45,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.kts_project.presentation.viewmodel.loginviewmodel.LoginUiEvent
 import com.example.kts_project.presentation.viewmodel.loginviewmodel.LoginViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.kts_project.R
+import com.example.kts_project.presentation.viewmodel.loginviewmodel.ErrorType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +55,7 @@ fun LoginScreenContent(
     userName: String,
     password: String,
     isLoginButtonActive: Boolean,
-    error: String? = null,
+    errorType: ErrorType? = null,
     onBack: () -> Unit,
     onUsernameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -63,19 +69,19 @@ fun LoginScreenContent(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            contentDescription = stringResource(R.string.navigation_back),
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
-                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
-                    navigationIconContentColor = Color.White,
-                    titleContentColor = Color.White
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
-        containerColor = Color(0xFFFF5252)
+        containerColor = MaterialTheme.colorScheme.primary
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -88,92 +94,31 @@ fun LoginScreenContent(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 60.dp),
-                text = "famous",
+                    .padding(vertical = 30.dp),
+                text = stringResource(R.string.login_title),
                 textAlign = TextAlign.Center,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 54.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.Cursive
             )
 
-            TextField(
+            EmailField(
                 value = userName,
                 onValueChange = onUsernameChanged,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                label = {
-                    Text(
-                        text = "Email",
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Введите email",
-                        color = Color.White.copy(alpha = 0.5f)
-                    )
-                },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.5f),
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                )
+                errorType = errorType
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextField(
+            PasswordField(
                 value = password,
                 onValueChange = onPasswordChanged,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                label = {
-                    Text(
-                        text = "Password",
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Введите пароль",
-                        color = Color.White.copy(alpha = 0.5f)
-                    )
-                },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.5f),
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                )
+                errorType = errorType
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
-            error?.let {
-                Spacer(Modifier.height(10.dp))
-                Text(it, color = MaterialTheme.colorScheme.error)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 modifier = Modifier
@@ -181,8 +126,8 @@ fun LoginScreenContent(
                     .height(40.dp)
                     .padding(horizontal = 32.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFDD0000),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 shape = RoundedCornerShape(4.dp),
                 onClick = onLogin,
@@ -191,11 +136,12 @@ fun LoginScreenContent(
                 if (isLoginButtonActive) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(Modifier.width(10.dp))
                 }
-                Text(text = "LOGIN")
+                Text(stringResource(R.string.login_button))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -207,17 +153,145 @@ fun LoginScreenContent(
                 onClick = { },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 elevation = null
             ) {
                 Text(
-                    text = "No account yet? Create one",
+                    text = stringResource(R.string.login_create_account),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Light,
                     letterSpacing = 0.5.sp
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun EmailField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    errorType: ErrorType? = null
+) {
+
+    val showError = errorType == ErrorType.EMPTY_EMAIL || errorType == ErrorType.UNKNOWN_ERROR
+    val errorText = when (errorType) {
+        ErrorType.EMPTY_EMAIL -> stringResource(R.string.login_error_empty_email)
+        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.login_error_unknown)
+        else -> null
+    }
+
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp),
+        label = {
+            Text(
+                text = stringResource(R.string.login_email_label),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+            )
+        },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.login_email_placeholder),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+            )
+        },
+        singleLine = true,
+        isError = showError,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+        )
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(20.dp)
+            .padding(start = 32.dp)
+    ) {
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.TopStart)
+            )
+        }
+    }
+}
+
+@Composable
+fun PasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    errorType: ErrorType? = null
+) {
+    val showError = errorType == ErrorType.EMPTY_PASSWORD || errorType == ErrorType.UNKNOWN_ERROR
+    val errorText = when (errorType) {
+        ErrorType.EMPTY_PASSWORD -> stringResource(R.string.login_error_empty_password)
+        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.login_error_unknown)
+        else -> null
+    }
+
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp),
+        label = {
+            Text(
+                text = stringResource(R.string.login_password_label),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+            )
+        },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.login_password_placeholder),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+            )
+        },
+        visualTransformation = PasswordVisualTransformation(),
+        singleLine = true,
+        isError = showError,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+        )
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(20.dp)
+            .padding(start = 32.dp)
+    ) {
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.TopStart)
+            )
         }
     }
 }
@@ -230,11 +304,14 @@ fun LoginScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val onBackStable = remember(onBack) { onBack }
+    val onLoginSuccessStable = remember(onLoginSuccess) { onLoginSuccess }
+
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 is LoginUiEvent.LoginSuccessEvent -> {
-                    onLoginSuccess()
+                    onLoginSuccessStable()
                 }
             }
         }
@@ -244,25 +321,27 @@ fun LoginScreen(
         userName = state.userName,
         password = state.password,
         isLoginButtonActive = state.isLoginButtonActive,
-        error = state.error,
-        onBack = onBack,
-        onUsernameChanged = viewModel::onUsernameChanged,
-        onPasswordChanged = viewModel::onPasswordChanged,
-        onLogin = viewModel::onLogin
+        errorType = state.errorType,
+        onBack = onBackStable,
+        onUsernameChanged = { viewModel.onUsernameChanged(it) },
+        onPasswordChanged = { viewModel.onPasswordChanged(it) },
+        onLogin = { viewModel.onLogin() }
     )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreenContent(
-        userName = "test",
-        password = "test",
-        isLoginButtonActive = false,
-        error = "state.error",
-        onBack = { },
-        onUsernameChanged = { },
-        onPasswordChanged = { },
-        onLogin = { }
-    )
+    MaterialTheme {
+        LoginScreenContent(
+            userName = "",
+            password = "test",
+            isLoginButtonActive = false,
+            errorType = null,
+            onBack = { },
+            onUsernameChanged = { },
+            onPasswordChanged = { },
+            onLogin = { }
+        )
+    }
 }

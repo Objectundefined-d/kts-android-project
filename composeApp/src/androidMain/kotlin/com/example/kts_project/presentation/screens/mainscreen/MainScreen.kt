@@ -1,10 +1,10 @@
 package com.example.kts_project.presentation.screens.mainscreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Comment
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,33 +40,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.example.kts_project.domain.model.Post
+import com.example.kts_project.presentation.components.LoadableImage
 import com.example.kts_project.presentation.viewmodel.mainviewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Comment
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.example.kts_project.R
+import com.example.kts_project.presentation.viewmodel.mainviewmodel.ErrorType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +71,7 @@ fun MainScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Лента",
+                        text = stringResource(R.string.main_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -84,7 +80,7 @@ fun MainScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.navigation_back),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -108,11 +104,13 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
-            } else if (state.error != null && state.posts.isEmpty()) {
+            } else if (state.errorType != null && state.posts.isEmpty()) {
                 ErrorState(
-                    error = state.error!!,
+                    errorType = state.errorType!!,
                     onRetry = { viewModel.refreshPosts() }
                 )
             } else {
@@ -120,7 +118,7 @@ fun MainScreen(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    contentPadding = PaddingValues(
                         bottom = 16.dp,
                         top = 8.dp,
                         start = 12.dp,
@@ -152,62 +150,22 @@ fun PostCard(
             .fillMaxWidth()
             .clickable { onPostClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
             if (!post.imageUrl.isNullOrBlank()) {
-                var imageLoadError by remember { mutableStateOf(false) }
-
-                Box(
+                LoadableImage(
+                    imageUrl = post.imageUrl,
+                    contentDescription = stringResource(R.string.post_image),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    if (!imageLoadError) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(post.imageUrl)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Post image",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop,
-                            onError = { imageLoadError = true }
-                        )
-                    }
-
-                    if (imageLoadError) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Image,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                )
-                                Text(
-                                    text = "Не удалось загрузить",
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                )
-                            }
-                        }
-                    }
-                }
+                        .height(140.dp)
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -216,7 +174,8 @@ fun PostCard(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -255,21 +214,21 @@ fun PostCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Лайки
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Likes",
-                            tint = Color.Red.copy(alpha = 0.7f),
+                            contentDescription = stringResource(R.string.likes),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
                             text = post.likes.toString(),
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -278,8 +237,8 @@ fun PostCard(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Comment,
-                            contentDescription = "Comments",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            contentDescription = stringResource(R.string.comments),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(2.dp))
@@ -297,9 +256,15 @@ fun PostCard(
 
 @Composable
 fun ErrorState(
-    error: String,
+    errorType: ErrorType,
     onRetry: () -> Unit
 ) {
+    val errorMessage = when (errorType) {
+        ErrorType.LOAD_ERROR -> stringResource(R.string.main_error_load)
+        ErrorType.REFRESH_ERROR -> stringResource(R.string.main_error_refresh)
+        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.main_error_unknown)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -315,7 +280,7 @@ fun ErrorState(
         )
 
         Text(
-            text = "Ошибка",
+            text = stringResource(R.string.main_error_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.error
@@ -324,30 +289,35 @@ fun ErrorState(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = error,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            text = errorMessage,
+            textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        androidx.compose.material3.Button(
+        Button(
             onClick = onRetry,
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
-            Text("Повторить")
+            Text(stringResource(R.string.main_retry_button))
         }
     }
 }
 
+@Composable
 private fun formatTimestamp(timestamp: Long): String {
     val now = System.currentTimeMillis()
     val diff = now - timestamp
 
     return when {
-        diff < 60_000 -> "только что"
-        diff < 3_600_000 -> "${diff / 60_000} мин. назад"
-        diff < 86_400_000 -> "${diff / 3_600_000} ч. назад"
+        diff < 60_000 -> stringResource(R.string.time_just_now)
+        diff < 3_600_000 -> stringResource(R.string.time_minutes_ago, diff / 60_000)
+        diff < 86_400_000 -> stringResource(R.string.time_hours_ago, diff / 3_600_000)
         else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(timestamp))
     }
 }
@@ -373,7 +343,7 @@ fun MainScreenPreview() {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)
+                contentPadding = PaddingValues(12.dp)
             ) {
                 items(samplePosts) { post ->
                     PostCard(
