@@ -1,5 +1,8 @@
 package com.example.kts_project.domain.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Post (
     val id: Int,
     val title: String,

@@ -38,6 +38,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -145,6 +146,8 @@ fun PostCard(
     post: Post,
     onPostClick: () -> Unit
 ) {
+    val formattedTime = remember(post.timestamp) { formatTimestamp(post.timestamp) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -204,7 +207,7 @@ fun PostCard(
                     )
 
                     Text(
-                        text = formatTimestamp(post.timestamp),
+                        text = formattedTime,
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -309,15 +312,14 @@ fun ErrorState(
     }
 }
 
-@Composable
 private fun formatTimestamp(timestamp: Long): String {
     val now = System.currentTimeMillis()
     val diff = now - timestamp
 
     return when {
-        diff < 60_000 -> stringResource(R.string.time_just_now)
-        diff < 3_600_000 -> stringResource(R.string.time_minutes_ago, diff / 60_000)
-        diff < 86_400_000 -> stringResource(R.string.time_hours_ago, diff / 3_600_000)
+        diff < 60_000 -> "Только что"
+        diff < 3_600_000 -> "${diff / 60_000} мин. назад"
+        diff < 86_400_000 -> "${diff / 3_600_000} ч. назад"
         else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(timestamp))
     }
 }

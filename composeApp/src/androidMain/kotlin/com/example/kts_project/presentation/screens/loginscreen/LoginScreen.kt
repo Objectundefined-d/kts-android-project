@@ -119,7 +119,6 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(100.dp))
 
-
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -174,7 +173,6 @@ fun EmailField(
     onValueChange: (String) -> Unit,
     errorType: ErrorType? = null
 ) {
-
     val showError = errorType == ErrorType.EMPTY_EMAIL || errorType == ErrorType.UNKNOWN_ERROR
     val errorText = when (errorType) {
         ErrorType.EMPTY_EMAIL -> stringResource(R.string.login_error_empty_email)
@@ -304,14 +302,15 @@ fun LoginScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val onBackStable = remember(onBack) { onBack }
-    val onLoginSuccessStable = remember(onLoginSuccess) { onLoginSuccess }
+    val onUsernameChanged = remember(viewModel) { { s: String -> viewModel.onUsernameChanged(s) } }
+    val onPasswordChanged = remember(viewModel) { { s: String -> viewModel.onPasswordChanged(s) } }
+    val onLogin = remember(viewModel) { { viewModel.onLogin(); Unit } }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 is LoginUiEvent.LoginSuccessEvent -> {
-                    onLoginSuccessStable()
+                    onLoginSuccess()
                 }
             }
         }
@@ -322,10 +321,10 @@ fun LoginScreen(
         password = state.password,
         isLoginButtonActive = state.isLoginButtonActive,
         errorType = state.errorType,
-        onBack = onBackStable,
-        onUsernameChanged = { viewModel.onUsernameChanged(it) },
-        onPasswordChanged = { viewModel.onPasswordChanged(it) },
-        onLogin = { viewModel.onLogin() }
+        onBack = onBack,
+        onUsernameChanged = onUsernameChanged,
+        onPasswordChanged = onPasswordChanged,
+        onLogin = onLogin
     )
 }
 
@@ -334,7 +333,7 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     MaterialTheme {
         LoginScreenContent(
-            userName = "",
+            userName = "gfgfg",
             password = "test",
             isLoginButtonActive = false,
             errorType = null,
