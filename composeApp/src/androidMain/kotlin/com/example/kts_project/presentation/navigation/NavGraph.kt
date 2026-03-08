@@ -27,14 +27,13 @@ object Greeting
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
-    val loginViewModel: LoginViewModel = hiltViewModel()
-    val mainViewModel: MainViewModel = hiltViewModel()
 
     NavHost(
         navController = navController,
         startDestination = Greeting
     ) {
         composable<Main> {
+            val mainViewModel: MainViewModel = hiltViewModel()
             MainScreen(
                 onBack = {
                     (navController.context.getActivity() as? Activity)?.finish()
@@ -43,6 +42,7 @@ fun AppNavHost() {
             )
         }
         composable<Login> {
+            val loginViewModel: LoginViewModel = hiltViewModel()
             LoginScreen(onLoginSuccess = {
                 navController.navigate(Main) {
                     popUpTo(Login) { inclusive = true }
