@@ -8,12 +8,12 @@
     <string name="greeting_learn_more">LEARN MORE</string>
     <string name="greeting_get_started">Get Started</string>
 
-    <string name="login_title">famous</string>
+    <string name="login_title">Stepik</string>
     <string name="login_email_label">Email</string>
     <string name="login_email_placeholder">Введите email</string>
     <string name="login_password_label">Password</string>
     <string name="login_password_placeholder">Введите пароль</string>
-    <string name="login_button">LOGIN</string>
+    <string name="login_button">Login with Stepik</string>
     <string name="login_create_account">No account yet? Create one</string>
     <string name="login_error_empty">Заполните все поля</string>
     <string name="login_error_email">Введите email</string>

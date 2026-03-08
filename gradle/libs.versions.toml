@@ -24,6 +24,7 @@ coil = "3.3.0"
 compose-material-icons = "1.7.3"
 napier = "2.7.1"
 ktor = "3.1.3"
+appauth = "0.11.1"
 
 [libraries]
 
@@ -84,6 +85,9 @@ napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 
 # BOM
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+
+# AppAuth
+appauth = { module = "net.openid:appauth", version.ref = "appauth" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

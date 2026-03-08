@@ -12,7 +12,9 @@ data class MainUiState(
     val courses: List<Course> = emptyList(),
     val selectedCourse: Course? = null,
     val isLoading: Boolean = false,
-    val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val hasNext: Boolean = false,
+    val currentPage: Int = 1,
     val errorType: ErrorType? = null
 )
 
