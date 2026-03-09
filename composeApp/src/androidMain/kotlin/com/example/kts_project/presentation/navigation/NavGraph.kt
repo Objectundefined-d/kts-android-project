@@ -10,7 +10,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.kts_project.presentation.screens.coursedetailscreen.CourseDetailScreen
-import com.example.kts_project.presentation.screens.greetingscreen.GreetingScreen
 import com.example.kts_project.presentation.screens.loginscreen.LoginScreen
 import com.example.kts_project.presentation.screens.mainscreen.MainScreen
 import com.example.kts_project.presentation.viewmodel.loginviewmodel.LoginViewModel
@@ -24,9 +23,6 @@ object Main
 object Login
 
 @Serializable
-object Greeting
-
-@Serializable
 data class CourseDetail(val courseId: Int)
 
 @Composable
@@ -35,7 +31,7 @@ fun AppNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = Greeting
+        startDestination = Login
     ) {
         composable<Main> {
             val mainViewModel: MainViewModel = hiltViewModel()
@@ -57,15 +53,9 @@ fun AppNavHost() {
                 }
             },
                 onBack = {
-                    navController.navigate(Greeting)
+                    (navController.context.getActivity() as? Activity)?.finish()
                 },
                 viewModel = loginViewModel)
-        }
-
-        composable<Greeting> {
-            GreetingScreen(onNavigateToLogin = {
-                navController.navigate(Login)
-            })
         }
 
         composable<CourseDetail> { backStackEntry ->

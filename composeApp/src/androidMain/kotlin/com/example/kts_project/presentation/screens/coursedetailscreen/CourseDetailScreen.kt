@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,10 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.kts_project.R
 import com.example.kts_project.domain.model.Course
-import com.example.kts_project.presentation.navigation.CourseDetail
 
 @Composable
 fun CourseDetailScreen(
@@ -56,16 +58,22 @@ fun CourseDetailScreen(
         }
 
         state.errorType != null -> {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Ошибка загрузки")
-                    Button(
-                        onClick = { viewModel.getCourseById(courseId) }
-                    ) {
-                        Text("Повторить")
+            Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.navigation_back)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = stringResource(R.string.detail_error))
+                        Button(onClick = { viewModel.getCourseById(courseId) }) {
+                            Text(text = stringResource(R.string.detail_retry))
+                        }
                     }
                 }
             }
@@ -88,7 +96,9 @@ fun CourseDetailContent(
         topBar = {
             TopAppBar(title = { Text(course.title, maxLines = 1) }, navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.navigation_back)
+                    )
                 }
             })
         }) { innerPadding ->
@@ -117,11 +127,11 @@ fun CourseDetailContent(
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
-                    "👥 ${course.learnersCount} учеников",
+                    text = stringResource(R.string.detail_learners, course.learnersCount),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 if (course.withCertificate) Text(
-                    "Сертификат", style = MaterialTheme.typography.bodyMedium
+                    stringResource(R.string.detail_certificate), style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -134,13 +144,16 @@ fun CourseDetailContent(
                     color = MaterialTheme.colorScheme.primary
                 )
             } else {
-                Text("Бесплатно", style = MaterialTheme.typography.titleMedium, color = Color.Green)
+                Text(text = stringResource(R.string.detail_free),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Green
+                )
             }
 
             Spacer(Modifier.height(16.dp))
 
             course.summary?.let {
-                Text("О курсе", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.detail_about), style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
                 Text(it, style = MaterialTheme.typography.bodyMedium)
             }

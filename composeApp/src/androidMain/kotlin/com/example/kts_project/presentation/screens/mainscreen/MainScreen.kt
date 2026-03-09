@@ -51,7 +51,7 @@ import com.example.kts_project.R
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
@@ -74,9 +74,11 @@ fun MainScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.navigation_back)
+                )
             }
-            Text("Stepik courses search (Ktor)", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.main_about_app), style = MaterialTheme.typography.titleLarge)
         }
 
         OutlinedTextField(
@@ -85,7 +87,7 @@ fun MainScreen(
                 search = it
                 viewModel.onSearchQueryChanged(it)
             },
-            label = { Text("Enter course name") },
+            label = { Text(stringResource(R.string.main_promt_invite)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -110,10 +112,10 @@ fun MainScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Smth wrong")
+                        Text(stringResource(R.string.main_error_title))
                         Spacer(Modifier.height(8.dp))
                         Button(onClick = { viewModel.onSearchQueryChanged(search = search) }) {
-                            Text("Repeat")
+                            Text(stringResource(R.string.main_retry_button))
                         }
                     }
                 }
@@ -131,9 +133,9 @@ fun MainScreen(
                             modifier = Modifier.size(120.dp)
                         )
                         Spacer(Modifier.height(16.dp))
-                        Text("There is no courses", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.main_no_curses), style = MaterialTheme.typography.bodyLarge)
                         Spacer(Modifier.height(8.dp))
-                        Text("Try another query", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.main_try_again), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -203,7 +205,7 @@ fun CourseItem(
                 Text(course.title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "${course.learnersCount} учеников",
+                    text = stringResource(R.string.main_learners, course.learnersCount),
                     style = MaterialTheme.typography.bodySmall
                 )
                 if (course.isPaid) {
@@ -213,7 +215,7 @@ fun CourseItem(
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {
-                    Text("Бесплатно", style = MaterialTheme.typography.bodySmall, color = Color.Green)
+                    Text(stringResource(R.string.detail_free), style = MaterialTheme.typography.bodySmall, color = Color.Green)
                 }
             }
         }
@@ -231,7 +233,7 @@ fun MainScreenPreview() {
             cover = null,
             learnersCount = 1000 + index * 100,
             isPaid = index % 2 == 0,
-            displayPrice = if (index % 2 == 0) "990 ₽" else null,
+            displayPrice = if (index % 2 == 0) "990 рублей" else null,
             withCertificate = index % 3 == 0,
             language = "ru"
         )
