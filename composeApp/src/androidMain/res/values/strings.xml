@@ -2,19 +2,12 @@
 <resources>
     <string name="app_name">KTS Project</string>
 
-    <string name="greeting_title">TRAVEL</string>
-    <string name="greeting_divider">──</string>
-    <string name="greeting_description">Duis aute dolor in reprehenderit in\nvoluptate velit esse cilum dolore eu fugiat\nnulla pariatur.</string>
-    <string name="greeting_learn_more">LEARN MORE</string>
-    <string name="greeting_get_started">Get Started</string>
-
-    <string name="login_title">famous</string>
+    <string name="login_title">Stepik</string>
     <string name="login_email_label">Email</string>
     <string name="login_email_placeholder">Введите email</string>
     <string name="login_password_label">Password</string>
     <string name="login_password_placeholder">Введите пароль</string>
-    <string name="login_button">LOGIN</string>
-    <string name="login_create_account">No account yet? Create one</string>
+    <string name="login_button">Login with Stepik</string>
     <string name="login_error_empty">Заполните все поля</string>
     <string name="login_error_email">Введите email</string>
     <string name="login_error_password">Введите пароль</string>
@@ -24,17 +17,25 @@
     <string name="main_retry_button">Повторить</string>
     <string name="main_image_error">Не удалось загрузить</string>
     <string name="main_comments">комм.</string>
-
+    <string name="main_learners">%d учеников</string>
     <string name="time_just_now">только что</string>
     <string name="time_minutes_ago">%d мин. назад</string>
     <string name="time_hours_ago">%d ч. назад</string>
 
     <string name="navigation_back">Назад</string>
+    <string name="navigation_out">Выйти</string>
     <string name="comments">Comments</string>
     <string name="likes">Likes</string>
     <string name="post_image">Post image</string>
     <string name="login_error">Ошибка входа</string>
     <string name="cat_image">Cat image</string>
+
+    <string name="detail_error">Ошибка загрузки</string>
+    <string name="detail_retry">Повторить</string>
+    <string name="detail_about">О курсе</string>
+    <string name="detail_certificate">Сертификат</string>
+    <string name="detail_free">Бесплатно</string>
+    <string name="detail_learners">%d учеников</string>
 
     <string name="main_error_load">Ошибка при загрузке</string>
     <string name="main_error_refresh">Ошибка при обновлении</string>
@@ -42,4 +43,11 @@
 
     <string name="login_error_empty_email">Введите email</string>
     <string name="login_error_empty_password">Введите пароль</string>
+
+    <string name="main_about_app">Stepik courses search</string>
+    <string name="main_promt_invite">Enter course name</string>
+    <string name="main_no_curses">There is no courses</string>
+    <string name="main_try_again">Try another query</string>
+
+
 </resources>

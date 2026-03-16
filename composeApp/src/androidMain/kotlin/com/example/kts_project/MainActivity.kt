@@ -1,5 +1,6 @@
 package com.example.kts_project
 
+import KtsProjectTheme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,7 +16,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            KtsProjectTheme {
+                App()
+            }
         }
     }
 }

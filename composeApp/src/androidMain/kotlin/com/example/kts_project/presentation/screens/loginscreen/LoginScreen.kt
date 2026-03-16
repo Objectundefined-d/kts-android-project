@@ -1,6 +1,10 @@
 package com.example.kts_project.presentation.screens.loginscreen
 
-import androidx.compose.foundation.layout.Box
+import KtsProjectTheme
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,11 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,21 +27,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,86 +46,88 @@ import androidx.compose.ui.res.stringResource
 import com.example.kts_project.R
 import com.example.kts_project.presentation.viewmodel.loginviewmodel.ErrorType
 
+
+@Composable
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: LoginViewModel
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        result.data?.let { intent ->
+            viewModel.handleAuthResponse(intent)
+        } ?: viewModel.handleAuthResponse(Intent())
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginUiEvent.LoginSuccessEvent -> {
+                    onLoginSuccess()
+                }
+            }
+        }
+    }
+
+    LoginScreenContent(
+        isLoginButtonActive = state.isLoginButtonActive,
+        errorType = state.errorType,
+        onBack = onBack,
+        onLogin = { launcher.launch(viewModel.getAuthIntent()) }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreenContent(
-    userName: String,
-    password: String,
     isLoginButtonActive: Boolean,
     errorType: ErrorType? = null,
     onBack: () -> Unit,
-    onUsernameChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
     onLogin: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.navigation_back),
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        },
         containerColor = MaterialTheme.colorScheme.primary
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .systemBarsPadding()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .systemBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 30.dp),
-                text = stringResource(R.string.login_title),
-                textAlign = TextAlign.Center,
+                text = "Stepik",
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 54.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.Cursive
+                fontWeight = FontWeight.Medium
             )
 
-            EmailField(
-                value = userName,
-                onValueChange = onUsernameChanged,
-                errorType = errorType
-            )
+            Spacer(modifier = Modifier.height(48.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PasswordField(
-                value = password,
-                onValueChange = onPasswordChanged,
-                errorType = errorType
-            )
-
-            Spacer(modifier = Modifier.height(100.dp))
+            if (errorType != null) {
+                Text(
+                    text = stringResource(R.string.login_error),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
+                    .height(48.dp)
                     .padding(horizontal = 32.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = RoundedCornerShape(4.dp),
+
                 onClick = onLogin,
                 enabled = !isLoginButtonActive
             ) {
@@ -143,203 +142,27 @@ fun LoginScreenContent(
                 Text(stringResource(R.string.login_button))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(40.dp),
-                onClick = { },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                elevation = null
-            ) {
-                Text(
-                    text = stringResource(R.string.login_create_account),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light,
-                    letterSpacing = 0.5.sp
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = stringResource(R.string.navigation_back),
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
     }
 }
 
-@Composable
-fun EmailField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    errorType: ErrorType? = null
-) {
-    val showError = errorType == ErrorType.EMPTY_EMAIL || errorType == ErrorType.UNKNOWN_ERROR
-    val errorText = when (errorType) {
-        ErrorType.EMPTY_EMAIL -> stringResource(R.string.login_error_empty_email)
-        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.login_error_unknown)
-        else -> null
-    }
-
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp),
-        label = {
-            Text(
-                text = stringResource(R.string.login_email_label),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-            )
-        },
-        placeholder = {
-            Text(
-                text = stringResource(R.string.login_email_placeholder),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
-            )
-        },
-        singleLine = true,
-        isError = showError,
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-            cursorColor = MaterialTheme.colorScheme.onPrimary,
-            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-        )
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(20.dp)
-            .padding(start = 32.dp)
-    ) {
-        if (errorText != null) {
-            Text(
-                text = errorText,
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 12.sp,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
-        }
-    }
-}
-
-@Composable
-fun PasswordField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    errorType: ErrorType? = null
-) {
-    val showError = errorType == ErrorType.EMPTY_PASSWORD || errorType == ErrorType.UNKNOWN_ERROR
-    val errorText = when (errorType) {
-        ErrorType.EMPTY_PASSWORD -> stringResource(R.string.login_error_empty_password)
-        ErrorType.UNKNOWN_ERROR -> stringResource(R.string.login_error_unknown)
-        else -> null
-    }
-
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp),
-        label = {
-            Text(
-                text = stringResource(R.string.login_password_label),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-            )
-        },
-        placeholder = {
-            Text(
-                text = stringResource(R.string.login_password_placeholder),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
-            )
-        },
-        visualTransformation = PasswordVisualTransformation(),
-        singleLine = true,
-        isError = showError,
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-            cursorColor = MaterialTheme.colorScheme.onPrimary,
-            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-        )
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(20.dp)
-            .padding(start = 32.dp)
-    ) {
-        if (errorText != null) {
-            Text(
-                text = errorText,
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 12.sp,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
-        }
-    }
-}
-
-@Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    onBack: () -> Unit,
-    viewModel: LoginViewModel
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val onUsernameChanged = remember(viewModel) { { s: String -> viewModel.onUsernameChanged(s) } }
-    val onPasswordChanged = remember(viewModel) { { s: String -> viewModel.onPasswordChanged(s) } }
-    val onLogin = remember(viewModel) { { viewModel.onLogin(); Unit } }
-
-    LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is LoginUiEvent.LoginSuccessEvent -> {
-                    onLoginSuccess()
-                }
-            }
-        }
-    }
-
-    LoginScreenContent(
-        userName = state.userName,
-        password = state.password,
-        isLoginButtonActive = state.isLoginButtonActive,
-        errorType = state.errorType,
-        onBack = onBack,
-        onUsernameChanged = onUsernameChanged,
-        onPasswordChanged = onPasswordChanged,
-        onLogin = onLogin
-    )
-}
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    MaterialTheme {
+    KtsProjectTheme {
         LoginScreenContent(
-            userName = "gfgfg",
-            password = "test",
             isLoginButtonActive = false,
             errorType = null,
             onBack = { },
-            onUsernameChanged = { },
-            onPasswordChanged = { },
             onLogin = { }
         )
     }

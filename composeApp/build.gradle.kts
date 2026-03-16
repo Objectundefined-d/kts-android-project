@@ -20,6 +20,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["appAuthRedirectScheme"] = "http"
     }
 
     compileOptions {
@@ -75,7 +76,23 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+
+    // Logging
+    implementation(libs.napier)
+
+    // AppAuth
+    implementation(libs.appauth)
+
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     debugImplementation(libs.compose.uiTooling)
 }

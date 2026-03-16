@@ -1,10 +1,10 @@
 package com.example.kts_project.di
 
+import com.example.kts_project.data.remote.StepikApi
 import com.example.kts_project.data.repository.LoginRepositoryImpl
-import com.example.kts_project.data.repository.PostsRepositoryImpl
+import com.example.kts_project.data.repository.CourseRepositoryImpl
+import com.example.kts_project.domain.repository.CourseRepository
 import com.example.kts_project.domain.repository.LoginRepository
-import com.example.kts_project.domain.repository.PostsRepository
-import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,5 +21,5 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun providePostsRepository(): PostsRepository = PostsRepositoryImpl()
+    fun provideCourseRepository(api: StepikApi): CourseRepository = CourseRepositoryImpl(api)
 }
